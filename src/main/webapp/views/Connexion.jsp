@@ -8,6 +8,17 @@
         <title>MiniProjetJava</title>
     </head>
     <body>
-        <h1>Identifiez_vous</h1>
+        <h1>Identifiez vous</h1>
+        
+        <form method="POST">
+		<label>Login : </label>
+                <input name="login">
+                
+                <p></p>
+                <label>Password :</label>
+                <input name="mdp" type="password" >
+		<input name="action" value="Connexion" type="SUBMIT">
+	</form>
+        <p> ${erreurAut}</p> 
     </body>
 </html>
