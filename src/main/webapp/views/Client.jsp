@@ -10,48 +10,50 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>L'appli</title>
+        <title>Edition des données utilisateurs </title>
     </head>
     <body>
+        <h1>Edition des données utilisateurs </h1>
         <form method="POST">
             <label>Nom : </label>
-                <input name="nom" value="${nom}">
+                <input name="nom" value="${user.nom}">
                     <p></p>
                 <label>Adresse N°1 :  </label>
-                <input name="adresse1" value="${adresse1}" >
+                <input name="adresse1" value="${user.adresse1}" >
                    <p></p>
                    
                 <label>Adresse N°2 :  </label>
-                <input name="adresse2" value="${adresse2}" >
+                <input name="adresse2" value="${user.adresse2}" >
                    <p></p>
                    
                 <label>Zip : </label>
+                
                 <select name="zip">
-                    <c:forEach items="${zip}" var="titre" >
-                        <option value="${titre}"> ${titre} </option>  
+                    <c:forEach items="${user.zips}" var="zip" >
+                        <option value="${zip}"> ${zip} </option>  
                     </c:forEach>
                     
                 </select>
                    <p></p>
                    
                 <label>Ville :  </label>
-                <input name="ville" value="${ville}" >
+                <input name="ville" value="${user.ville}" >
                    <p></p>
                    
                 <label>Etat :  </label>
-                <input name="etat" value="${etat}" >
+                <input name="etat" value="${user.etat}" >
                    <p></p>
                    
                 <label>N°de téléphone :   </label>
-                <input name="tel" value="${tel}" >
+                <input name="tel" value="${user.tel}" >
                    <p></p>
                    
                 <label>Fax : </label>
-                <input name="fax" value="${fax}" >
+                <input name="fax" value="${user.fax}" >
                    <p></p>
                    
                 <label>Email :</label>
-                <input name="email" value="${email}" type="email" >
+                <input name="email" value="${user.email}" type="email" >
                 
                 
                 
