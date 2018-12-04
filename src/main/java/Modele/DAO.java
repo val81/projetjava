@@ -21,7 +21,7 @@ import javax.sql.DataSource;
  *
  * @author pedago
  */
-public abstract class DAO implements IDAO {
+public class DAO implements IDAO {
     
 	protected final DataSource myDataSource;
 
