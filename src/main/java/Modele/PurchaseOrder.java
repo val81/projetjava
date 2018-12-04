@@ -11,7 +11,7 @@ import java.sql.Date;
  *
  * @author pedago
  */
-public class Purchase {
+public class PurchaseOrder {
 
     private int orderNum;
     private int customerId;
@@ -22,7 +22,7 @@ public class Purchase {
     private Date shippingDate;
     private String freightCompany;
     
-    public Purchase(int orderNum, int customerId, int productId, int quantity, double shippingCost, Date salesDate, Date shippingDate, String freightCompany)
+    public PurchaseOrder(int orderNum, int customerId, int productId, int quantity, double shippingCost, Date salesDate, Date shippingDate, String freightCompany)
     {
         this.orderNum = orderNum;
         this.customerId = customerId;

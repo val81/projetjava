@@ -34,9 +34,9 @@ public abstract class DAO implements IDAO {
         this.myDataSource = dataSource;
 	}
         
-        public List<Purchase> getPurchaseOrders(Customer customer)
+        public List<PurchaseOrder> getPurchaseOrders(Customer customer)
         {
-            List<Purchase> result = new LinkedList<>();
+            List<PurchaseOrder> result = new LinkedList<>();
 
             String sql = "SELECT * FROM PURCHASE_ORDER WHERE CUSTOMER_ID = ?";
             try (Connection connection = myDataSource.getConnection();
@@ -47,7 +47,7 @@ public abstract class DAO implements IDAO {
                 {
                     while (rs.next())
                     {
-                        Purchase purchase = new Purchase(rs.getInt("ORDER_NUM"), rs.getInt("CUSTOMER_ID"), rs.getInt("PRODUCT_ID"),
+                        PurchaseOrder purchase = new PurchaseOrder(rs.getInt("ORDER_NUM"), rs.getInt("CUSTOMER_ID"), rs.getInt("PRODUCT_ID"),
                                                         rs.getInt("QUANTITY"), rs.getDouble("SHIPPING_COST"), rs.getDate("SALES_DATE"),
                                                         rs.getDate("SHIPPING_DATE"), rs.getString("FREIGHT_COMPANY"));
                         result.add(purchase);
@@ -61,7 +61,7 @@ public abstract class DAO implements IDAO {
             return result;
 	}
 
-	public boolean addPurchaseOrder(Purchase order)
+	public boolean addPurchaseOrder(PurchaseOrder order)
         {
             String insertPurchaseOrder = "INSERT INTO PURCHASE_ORDER VALUES (?, ?, ?, ?, ?, ?, ?, ?,)";
 
@@ -144,12 +144,12 @@ public abstract class DAO implements IDAO {
     }
 
     @Override
-    public boolean deletePurchaseOrders(Purchase order) {
+    public boolean deletePurchaseOrders(PurchaseOrder order) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public boolean updatePurchaseOrder(Purchase order) {
+    public boolean updatePurchaseOrder(PurchaseOrder order) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
