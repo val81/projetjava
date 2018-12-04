@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -20,7 +21,7 @@ import javax.sql.DataSource;
  *
  * @author pedago
  */
-public class DAO {
+public abstract class DAO implements IDAO {
     
 	protected final DataSource myDataSource;
 
@@ -33,9 +34,9 @@ public class DAO {
         this.myDataSource = dataSource;
 	}
         
-        public List<PurchaseOrder> getPurchaseOrders(Customer customer) throws DAOException
+        public List<Purchase> getPurchaseOrders(Customer customer)
         {
-            List<PurchaseOrder> result = new LinkedList<>();
+            List<Purchase> result = new LinkedList<>();
 
             String sql = "SELECT * FROM PURCHASE_ORDER WHERE CUSTOMER_ID = ?";
             try (Connection connection = myDataSource.getConnection();
@@ -46,20 +47,21 @@ public class DAO {
                 {
                     while (rs.next())
                     {
-                        PurchaseOrder purchase = new PurchaseOrder(rs.getInt("ORDER_NUM"), rs.getInt("CUSTOMER_ID"), rs.getInt("PRODUCT_ID"),
-                                                                    rs.getInt("QUANTITY"), rs.getDouble("SHIPPING_COST"), rs.getDate("SALES_DATE"), rs.getDate("SHIPPING_DATE"), rs.getString("FREIGHT_COMPANY"));
+                        Purchase purchase = new Purchase(rs.getInt("ORDER_NUM"), rs.getInt("CUSTOMER_ID"), rs.getInt("PRODUCT_ID"),
+                                                        rs.getInt("QUANTITY"), rs.getDouble("SHIPPING_COST"), rs.getDate("SALES_DATE"),
+                                                        rs.getDate("SHIPPING_DATE"), rs.getString("FREIGHT_COMPANY"));
                         result.add(purchase);
                     }
                 }
             } catch (SQLException ex)
             {
 		Logger.getLogger("DAO").log(Level.SEVERE, null, ex);
-		throw new DAOException(ex.getMessage());
+		return null;
             }
             return result;
 	}
 
-	public void addPurchaseOrder(PurchaseOrder order) throws Exception
+	public boolean addPurchaseOrder(Purchase order)
         {
             String insertPurchaseOrder = "INSERT INTO PURCHASE_ORDER VALUES (?, ?, ?, ?, ?, ?, ?, ?,)";
 
@@ -85,17 +87,106 @@ public class DAO {
                 {
                     purchaseStatement.executeUpdate();
                     myConnection.commit();
+                    return true;
 		} catch (Exception ex)
                 {
-                    System.out.println(ex);
+                    System.err.println(ex);
                     myConnection.rollback();
-                    throw(ex);
 		} finally
                 {
                     myConnection.setAutoCommit(true);
                 }
+            } catch (SQLException ex) {
+                Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
             }
+            return false;
 	}
+
+    @Override //login = mail, psw = id
+    public Customer login(String login, String password)
+    {
+            Customer result = null;
+            String sql = "SELECT * FROM CUSTOMER WHERE CUSTOMER_ID = ?";
+            try (Connection connection = myDataSource.getConnection(); // On crée un statement pour exécuter une requête
+                    PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+                    stmt.setInt(1, Integer.parseInt(password));
+                    try (ResultSet rs = stmt.executeQuery())
+                    {
+                        if (rs.next())
+                        {
+                            result = new Customer(rs.getInt("CUSTOMER_ID"),
+                                                    rs.getString("DISCOUNT_CODE"),
+                                                    rs.getString("ZIP"),
+                                                    rs.getString("NAME"),
+                                                    rs.getString("ADRESSLINE1"),
+                                                    rs.getString("ADRESSLINE1"),
+                                                    rs.getString("CITY"),
+                                                    rs.getString("STATE"),
+                                                    rs.getString("PHONE"),
+                                                    rs.getString("FAX"),
+                                                    rs.getString("EMAIL"),
+                                                    rs.getInt("CREDIT_LIMIT"));
+                        }
+                    }
+		}  catch (SQLException ex) {
+			Logger.getLogger("DAO").log(Level.SEVERE, null, ex);
+                        return null;
+		}
+            return result;
+    }
+
+    @Override
+    public boolean updateCustomer(Customer newCustomerData)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean deletePurchaseOrders(Purchase order) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean updatePurchaseOrder(Purchase order) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<Product> getAllProducts() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean addProduct(Product product) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean deleteProduct(Product product) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean updateProduct(Product product) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<ProductCodeRevenue> getProductCodesRevenues(Date startDate, Date endDate) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<MicroMarketRevenue> getMicroMarketsRevenues(Date startDate, Date endDate) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<CustomerRevenue> getCustomersRevenues(Date startDate, Date endDate) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
         
         
 }
