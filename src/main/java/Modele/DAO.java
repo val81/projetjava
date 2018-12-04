@@ -21,7 +21,7 @@ import javax.sql.DataSource;
  *
  * @author pedago
  */
-public class DAO implements IDAO {
+public abstract class DAO implements IDAO {
     
 	protected final DataSource myDataSource;
 
@@ -34,9 +34,9 @@ public class DAO implements IDAO {
         this.myDataSource = dataSource;
 	}
         
-        public List<PurchaseOrder> getPurchaseOrders(Customer customer)
+        public List<Purchase> getPurchaseOrders(Customer customer)
         {
-            List<PurchaseOrder> result = new LinkedList<>();
+            List<Purchase> result = new LinkedList<>();
 
             String sql = "SELECT * FROM PURCHASE_ORDER WHERE CUSTOMER_ID = ?";
             try (Connection connection = myDataSource.getConnection();
@@ -47,7 +47,7 @@ public class DAO implements IDAO {
                 {
                     while (rs.next())
                     {
-                        PurchaseOrder purchase = new PurchaseOrder(rs.getInt("ORDER_NUM"), rs.getInt("CUSTOMER_ID"), rs.getInt("PRODUCT_ID"),
+                        Purchase purchase = new Purchase(rs.getInt("ORDER_NUM"), rs.getInt("CUSTOMER_ID"), rs.getInt("PRODUCT_ID"),
                                                         rs.getInt("QUANTITY"), rs.getDouble("SHIPPING_COST"), rs.getDate("SALES_DATE"),
                                                         rs.getDate("SHIPPING_DATE"), rs.getString("FREIGHT_COMPANY"));
                         result.add(purchase);
@@ -61,7 +61,7 @@ public class DAO implements IDAO {
             return result;
 	}
 
-	public boolean addPurchaseOrder(PurchaseOrder order)
+	public boolean addPurchaseOrder(Purchase order)
         {
             String insertPurchaseOrder = "INSERT INTO PURCHASE_ORDER VALUES (?, ?, ?, ?, ?, ?, ?, ?,)";
 
@@ -134,23 +134,98 @@ public class DAO implements IDAO {
 			Logger.getLogger("DAO").log(Level.SEVERE, null, ex);
                         return null;
 		}
+            if (!(login.equals(result.getEmail())))
+                return null;
             return result;
     }
 
     @Override
     public boolean updateCustomer(Customer newCustomerData)
     {
-        return false;
+        String sql = "UPDATE CUSTOMER SET DISCOUNT_CODE = ?, ZIP = ?, NAME = ?, ADRESSLINE1 = ?, ADRESSLINE2 = ?, CITY = ?, STATE = ?, PHONE = ?, FAX = ?, EMAIL = ?, CREDIT_LIMIT = ? WHERE CUSTOMER_ID = ?";
+        try (	Connection myConnection = myDataSource.getConnection();
+		PreparedStatement statement = myConnection.prepareStatement(sql))
+        {
+            myConnection.setAutoCommit(false);
+            try
+            {
+                statement.setString(1, newCustomerData.getDiscountCode());
+                statement.setString(2, newCustomerData.getZip());
+                statement.setString(3, newCustomerData.getName());
+                statement.setString(4, newCustomerData.getAddr1());
+                statement.setString(5, newCustomerData.getAddr2());
+                statement.setString(6, newCustomerData.getCity());
+                statement.setString(7, newCustomerData.getState());
+                statement.setString(8, newCustomerData.getPhone());
+                statement.setString(9, newCustomerData.getFax());
+                statement.setString(10, newCustomerData.getEmail());
+                statement.setInt(11, newCustomerData.getCreditLimit());
+                statement.setInt(12, newCustomerData.getId());
+                if (statement.executeUpdate() != 1)
+                    return false;
+                myConnection.commit();
+            } catch (Exception ex) {
+        	myConnection.rollback();
+                return false;
+            } finally {
+                myConnection.setAutoCommit(true);				
+            }
+	} catch (SQLException ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+            }
+        return true;
     }
 
     @Override
-    public boolean deletePurchaseOrders(PurchaseOrder order) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public boolean deletePurchaseOrders(Purchase order)
+    {
+        String sql = "DELETE FROM PURCHASE_ORDER WHERE ORDER_NUM = ?";
+	try (Connection connection = myDataSource.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql))
+        {
+            stmt.setInt(1, order.getOrderNum());
+            if ((stmt.executeUpdate()) != 1)
+                return false;
+	} catch (SQLException ex) {
+            Logger.getLogger("DAO").log(Level.SEVERE, null, ex);
+            return false;
+	}
+        return true;
     }
 
     @Override
-    public boolean updatePurchaseOrder(PurchaseOrder order) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public boolean updatePurchaseOrder(Purchase order)
+    {
+        String sql = "UPDATE PURCHASE_ORDER SET CUSTOMER_ID = ?, PRODUCT_ID = ?, QUANTITY = ?, SHIPPING_COST = ?, SALES_DATE = ?, SHIPPING_DATE = ?, FREIGHT_COMPANY = ? WHERE ODER_NUM = ?";
+        try (	Connection myConnection = myDataSource.getConnection();
+		PreparedStatement statement = myConnection.prepareStatement(sql))
+        {
+            myConnection.setAutoCommit(false);
+            try
+            {
+                statement.setInt(1, order.getCustomerId());
+                statement.setInt(2, order.getProductId());
+                statement.setInt(3, order.getQuantity());
+                statement.setDouble(4, order.getShippingCost());
+                statement.setDate(5, order.getSalesDate());
+                statement.setDate(6, order.getShippingDate());
+                statement.setString(7, order.getFreightCompany());
+                statement.setInt(1, order.getOrderNum());
+                if (statement.executeUpdate() != 1)
+                    return false;
+                myConnection.commit();
+            } catch (Exception ex) {
+        	myConnection.rollback();
+                return false;
+            } finally {
+                myConnection.setAutoCommit(true);				
+            }
+	} catch (SQLException ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+            }
+        return true;
     }
 
     @Override
@@ -192,12 +267,12 @@ public class DAO implements IDAO {
 }
 
 /*
-    Customer login(String login, String password);
-    boolean updateCustomer(Customer newCustomerData);
+        Customer login(String login, String password);
+        boolean updateCustomer(Customer newCustomerData);
     
         List<PurchaseOrder> getPurchaseOrders(Customer customer);
         boolean addPurchaseOrder(PurchaseOrder order);
-    boolean deletePurchaseOrders(PurchaseOrder order);
+        boolean deletePurchaseOrders(PurchaseOrder order);
     boolean updatePurchaseOrder(PurchaseOrder order);
     
     List<Product> getAllProducts();

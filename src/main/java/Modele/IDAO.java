@@ -7,10 +7,10 @@ public interface IDAO {
     Customer login(String login, String password);
     boolean updateCustomer(Customer newCustomerData);
     
-    List<PurchaseOrder> getPurchaseOrders(Customer customer);
-    boolean addPurchaseOrder(PurchaseOrder order);
-    boolean deletePurchaseOrders(PurchaseOrder order);
-    boolean updatePurchaseOrder(PurchaseOrder order);
+    List<Purchase> getPurchaseOrders(Customer customer);
+    boolean addPurchaseOrder(Purchase order);
+    boolean deletePurchaseOrders(Purchase order);
+    boolean updatePurchaseOrder(Purchase order);
     
     List<Product> getAllProducts();
     boolean addProduct(Product product);
