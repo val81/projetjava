@@ -131,7 +131,7 @@ public class DAO implements IDAO
 			Logger.getLogger("DAO").log(Level.SEVERE, null, ex);
                         return null;
 		}
-            if (!(login.equals(result.getEmail())))
+            if (result != null && !login.equals(result.getEmail()))
                 return null;
             return result;
     }
