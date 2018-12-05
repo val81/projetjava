@@ -34,6 +34,10 @@ public class PurchaseOrder {
         this.freightCompany = freightCompany;
     }
     
+    public PurchaseOrder(int customerId)
+    {
+        this.customerId = customerId;
+    }
     
     int getOrderNum()
     {

@@ -21,94 +21,91 @@ import javax.sql.DataSource;
  *
  * @author pedago
  */
-public class DAO implements IDAO {
+public class DAO implements IDAO
+{
     
-	protected final DataSource myDataSource;
+    protected final DataSource myDataSource;
 
-	/**
-	 *
-	 * @param dataSource la source de données à utiliser
-	 */
-	public DAO(DataSource dataSource)
+    public DAO(DataSource dataSource)
     {
         this.myDataSource = dataSource;
-	}
+    }
         
-        public List<PurchaseOrder> getPurchaseOrders(Customer customer)
+    public List<PurchaseOrder> getPurchaseOrders(Customer customer)
+    {
+        List<PurchaseOrder> result = new LinkedList<>();
+
+        String sql = "SELECT * FROM PURCHASE_ORDER WHERE CUSTOMER_ID = ?";
+        try (Connection connection = myDataSource.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql))
         {
-            List<PurchaseOrder> result = new LinkedList<>();
-
-            String sql = "SELECT * FROM PURCHASE_ORDER WHERE CUSTOMER_ID = ?";
-            try (Connection connection = myDataSource.getConnection();
-                PreparedStatement stmt = connection.prepareStatement(sql))
+            stmt.setInt(1, customer.getId());
+            try (ResultSet rs = stmt.executeQuery())
             {
-                stmt.setInt(1, customer.getId());
-                try (ResultSet rs = stmt.executeQuery())
+                while (rs.next())
                 {
-                    while (rs.next())
-                    {
-                        PurchaseOrder purchase = new PurchaseOrder(rs.getInt("ORDER_NUM"), rs.getInt("CUSTOMER_ID"), rs.getInt("PRODUCT_ID"),
-                                                        rs.getInt("QUANTITY"), rs.getDouble("SHIPPING_COST"), rs.getDate("SALES_DATE"),
-                                                        rs.getDate("SHIPPING_DATE"), rs.getString("FREIGHT_COMPANY"));
-                        result.add(purchase);
-                    }
+                    PurchaseOrder purchase = new PurchaseOrder(rs.getInt("ORDER_NUM"), rs.getInt("CUSTOMER_ID"), rs.getInt("PRODUCT_ID"),
+                                                    rs.getInt("QUANTITY"), rs.getDouble("SHIPPING_COST"), rs.getDate("SALES_DATE"),
+                                                    rs.getDate("SHIPPING_DATE"), rs.getString("FREIGHT_COMPANY"));
+                    result.add(purchase);
                 }
-            } catch (SQLException ex)
-            {
-		Logger.getLogger("DAO").log(Level.SEVERE, null, ex);
-		return null;
             }
-            return result;
-	}
-
-	public boolean addPurchaseOrder(PurchaseOrder order)
+        } catch (SQLException ex)
         {
-            String insertPurchaseOrder = "INSERT INTO PURCHASE_ORDER VALUES (?, ?, ?, ?, ?, ?, ?, ?,)";
+            Logger.getLogger("DAO").log(Level.SEVERE, null, ex);
+            return null;
+        }
+        return result;
+    }
 
-            try (Connection myConnection = myDataSource.getConnection();
-                PreparedStatement purchaseStatement = myConnection.prepareStatement(insertPurchaseOrder, Statement.RETURN_GENERATED_KEYS))
+    public boolean addPurchaseOrder(PurchaseOrder order)
+    {
+        String insertPurchaseOrder = "INSERT INTO PURCHASE_ORDER VALUES (?, ?, ?, ?, ?, ?, ?, ?,)";
+
+        try (Connection myConnection = myDataSource.getConnection();
+            PreparedStatement purchaseStatement = myConnection.prepareStatement(insertPurchaseOrder, Statement.RETURN_GENERATED_KEYS))
+        {
+            myConnection.setAutoCommit(false);
+
+            ResultSet generatedKeys = purchaseStatement.getGeneratedKeys();
+            generatedKeys.next();
+            int purchaseID = generatedKeys.getInt("ID");
+            System.out.println("Nouvelle clé générée pour PURCHASE_ORDER : " + purchaseID);
+
+            purchaseStatement.setInt(1, purchaseID);
+            purchaseStatement.setInt(2, order.getCustomerId());
+            purchaseStatement.setInt(3, order.getProductId());
+            purchaseStatement.setInt(4, order.getQuantity());
+            purchaseStatement.setDouble(5, order.getShippingCost());
+            purchaseStatement.setDate(6, order.getSalesDate());
+            purchaseStatement.setDate(7, order.getShippingDate());
+            purchaseStatement.setString(8, order.getFreightCompany());
+            try
             {
-                myConnection.setAutoCommit(false);
-
-                ResultSet generatedKeys = purchaseStatement.getGeneratedKeys();
-                generatedKeys.next();
-                int purchaseID = generatedKeys.getInt("ID");
-                System.out.println("Nouvelle clé générée pour PURCHASE_ORDER : " + purchaseID);
-
-                purchaseStatement.setInt(1, purchaseID);
-                purchaseStatement.setInt(2, order.getCustomerId());
-                purchaseStatement.setInt(3, order.getProductId());
-                purchaseStatement.setInt(4, order.getQuantity());
-                purchaseStatement.setDouble(5, order.getShippingCost());
-                purchaseStatement.setDate(6, order.getSalesDate());
-                purchaseStatement.setDate(7, order.getShippingDate());
-                purchaseStatement.setString(8, order.getFreightCompany());
-                try
-                {
-                    purchaseStatement.executeUpdate();
-                    myConnection.commit();
-                    return true;
-		} catch (Exception ex)
-                {
-                    System.err.println(ex);
-                    myConnection.rollback();
-		} finally
-                {
-                    myConnection.setAutoCommit(true);
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
+                purchaseStatement.executeUpdate();
+                myConnection.commit();
+                return true;
+            } catch (Exception ex)
+            {
+                System.err.println(ex);
+                myConnection.rollback();
+            } finally
+            {
+                myConnection.setAutoCommit(true);
             }
+        } catch (SQLException ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
             return false;
-	}
+        }
+        return false;
+    }
 
-    @Override //login = mail, psw = id
+    @Override //login = email, psw = id
     public Customer login(String login, String password)
     {
             Customer result = null;
             String sql = "SELECT * FROM CUSTOMER WHERE CUSTOMER_ID = ?";
-            try (Connection connection = myDataSource.getConnection(); // On crée un statement pour exécuter une requête
+            try (Connection connection = myDataSource.getConnection();
                     PreparedStatement stmt = connection.prepareStatement(sql)) {
 
                     stmt.setInt(1, Integer.parseInt(password));
@@ -229,23 +226,124 @@ public class DAO implements IDAO {
     }
 
     @Override
-    public List<Product> getAllProducts() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public List<Product> getAllProducts()
+    {
+        List<Product> result = new LinkedList<>();
+
+        String sql = "SELECT * FROM PRODUCT";
+        try (Connection connection = myDataSource.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql))
+        {
+            try (ResultSet rs = stmt.executeQuery())
+            {
+                while (rs.next())
+                {
+                    Product product = new Product(rs.getInt("PRODUCT_ID"), rs.getInt("MANUFACTURER_ID"), rs.getString("PRODUCT_CODE"),
+                                                    rs.getDouble("PURCHASE_COST"), rs.getInt("QUANTITY_ON_HAND"), rs.getDouble("MARKUP"),
+                                                    rs.getString("AVAILABLE"), rs.getString("DESCRIPTION"));
+                    result.add(product);
+                }
+            }
+        } catch (SQLException ex)
+        {
+            Logger.getLogger("DAO").log(Level.SEVERE, null, ex);
+            return null;
+        }
+        return result;
     }
 
     @Override
-    public boolean addProduct(Product product) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public boolean addProduct(Product product)
+    {
+        String insertProduct = "INSERT INTO PRODUCT VALUES (?, ?, ?, ?, ?, ?, ?, ?,)";
+
+        try (Connection myConnection = myDataSource.getConnection();
+            PreparedStatement productStatement = myConnection.prepareStatement(insertProduct, Statement.RETURN_GENERATED_KEYS))
+        {
+            myConnection.setAutoCommit(false);
+
+            ResultSet generatedKeys = productStatement.getGeneratedKeys();
+            generatedKeys.next();
+            int productID = generatedKeys.getInt("ID");
+            System.out.println("Nouvelle clé générée pour PURCHASE_ORDER : " + productID);
+
+            productStatement.setInt(1, productID);
+            productStatement.setInt(2, product.getManufacturerId());
+            productStatement.setString(3, product.getProductCode());
+            productStatement.setDouble(4, product.getPurchaseCost());
+            productStatement.setInt(5, product.getQuantityOnHand());
+            productStatement.setDouble(6, product.getMarkup());
+            productStatement.setString(7, product.isAvailable() ? "TRUE" : "FALSE");
+            productStatement.setString(8, product.getDescription());
+            try
+            {
+                productStatement.executeUpdate();
+                myConnection.commit();
+                return true;
+            } catch (Exception ex)
+            {
+                System.err.println(ex);
+                myConnection.rollback();
+            } finally
+            {
+                myConnection.setAutoCommit(true);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+        return false;
     }
 
     @Override
-    public boolean deleteProduct(Product product) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public boolean deleteProduct(Product product)
+    {
+        String sql = "DELETE FROM PRODUCT WHERE PRODUCT_ID = ?";
+	try (Connection connection = myDataSource.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql))
+        {
+            stmt.setInt(1, product.getId());
+            if ((stmt.executeUpdate()) != 1)
+                return false;
+	} catch (SQLException ex) {
+            Logger.getLogger("DAO").log(Level.SEVERE, null, ex);
+            return false;
+	}
+        return true;
     }
 
     @Override
-    public boolean updateProduct(Product product) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public boolean updateProduct(Product product)
+    {
+        String sql = "UPDATE PRODUCT SET MANUFACTURER_ID = ?, PRODUCT_CODE = ?, PURCHASE_COST = ?, QUANTITY_ON_HAND = ?, MARKUP = ?, AVAILABLE = ?, DESCRIPTION = ? WHERE PRODUCT_ID = ?";
+        try (	Connection myConnection = myDataSource.getConnection();
+		PreparedStatement statement = myConnection.prepareStatement(sql))
+        {
+            myConnection.setAutoCommit(false);
+            try
+            {
+                statement.setInt(1, product.getManufacturerId());
+                statement.setString(2, product.getProductCode());
+                statement.setDouble(3, product.getPurchaseCost());
+                statement.setInt(4, product.getQuantityOnHand());
+                statement.setDouble(5, product.getMarkup());
+                statement.setString(6, product.isAvailable() ? "TRUE" : "FALSE");
+                statement.setString(7, product.getDescription());
+                statement.setInt(8, product.getId());
+                if (statement.executeUpdate() != 1)
+                    return false;
+                myConnection.commit();
+            } catch (Exception ex) {
+        	myConnection.rollback();
+                return false;
+            } finally {
+                myConnection.setAutoCommit(true);				
+            }
+	} catch (SQLException ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -271,14 +369,14 @@ public class DAO implements IDAO {
         boolean updateCustomer(Customer newCustomerData);
     
         List<PurchaseOrder> getPurchaseOrders(Customer customer);
-        boolean addPurchaseOrder(PurchaseOrder order);
+        boolean addPurchaseOrder(PurchaseOrder order);  --> key
         boolean deletePurchaseOrders(PurchaseOrder order);
-    boolean updatePurchaseOrder(PurchaseOrder order);
+        boolean updatePurchaseOrder(PurchaseOrder order);
     
-    List<Product> getAllProducts();
-    boolean addProduct(Product product);
-    boolean deleteProduct(Product product);
-    boolean updateProduct(Product product);
+        List<Product> getAllProducts();
+        boolean addProduct(Product product); --> key
+        boolean deleteProduct(Product product);
+        boolean updateProduct(Product product);
     
     List<ProductCodeRevenue> getProductCodesRevenues(Date startDate, Date endDate);
     List<MicroMarketRevenue> getMicroMarketsRevenues(Date startDate, Date endDate);

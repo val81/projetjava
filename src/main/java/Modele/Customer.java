@@ -42,7 +42,11 @@ public class Customer {
         this.email = email;
         this.creditLimit = creditLimit;
     }
-    
+
+    public Customer(int id)
+    {
+        this.id = id;
+    }
     
     int getId()
     {
