@@ -17,6 +17,8 @@ public interface IDAO {
     boolean deleteProduct(Product product);
     boolean updateProduct(Product product);
     
+    List<MicroMarket> getAllMicroMarkets();
+    
     List<ProductCodeRevenue> getProductCodesRevenues(Date startDate,
                                                                 Date endDate);
     List<MicroMarketRevenue> getMicroMarketsRevenues(Date startDate,

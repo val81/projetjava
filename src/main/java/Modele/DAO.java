@@ -360,6 +360,11 @@ public class DAO implements IDAO
     public List<CustomerRevenue> getCustomersRevenues(Date startDate, Date endDate) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public List<MicroMarket> getAllMicroMarkets() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
         
         
 }
