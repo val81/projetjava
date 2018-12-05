@@ -48,62 +48,62 @@ public class Customer {
         this.id = id;
     }
     
-    int getId()
+    public int getId()
     {
         return this.id;
     }
 
-    String getDiscountCode()
+    public String getDiscountCode()
     {
         return this.discountCode;
     }
 
-    String getZip()
+    public String getZip()
     {
         return this.zip;
     }
 
-    String getName()
+    public String getName()
     {
         return this.name;
     }
 
-    String getAddr1()
+    public String getAddr1()
     {
         return this.addr1;
     }
 
-    String getAddr2()
+    public String getAddr2()
     {
         return this.addr2;
     }
 
-    String getCity()
+    public String getCity()
     {
         return this.city;
     }
 
-    String getState()
+    public String getState()
     {
         return this.state;
     }
 
-    String getPhone()
+    public String getPhone()
     {
         return this.phone;
     }
 
-    String getFax()
+    public String getFax()
     {
         return this.fax;
     }
 
-    String getEmail()
+    public String getEmail()
     {
         return this.email;
     }
 
-    int getCreditLimit()
+    public int getCreditLimit()
     {
         return this.creditLimit;
     }
