@@ -16,36 +16,35 @@
         <h1>Edition des données utilisateurs </h1>
         <form method="POST">
             <label>Nom : </label>
-                <input name="nom" value="${user.nom}">
+                <input name="nom" value="${user.name}">
                     <p></p>
                 <label>Adresse N°1 :  </label>
-                <input name="adresse1" value="${user.adresse1}" >
+                <input name="adresse1" value="${user.addr1}" >
                    <p></p>
                    
                 <label>Adresse N°2 :  </label>
-                <input name="adresse2" value="${user.adresse2}" >
+                <input name="adresse2" value="${user.addr2}" >
                    <p></p>
                    
                 <label>Zip : </label>
                 
                 <select name="zip">
-                    <c:forEach items="${user.zips}" var="zip" >
-                        <option value="${zip}"> ${zip} </option>  
+                    <c:forEach items="${micromarkets}" var="micromarket" >
+                        <option value="${micromarker.zipCode}" <c:if test="${zip.zipCode=user.zip}" >selected</c:if>>${zip.zipCode}</option>  
                     </c:forEach>
-                    
                 </select>
                    <p></p>
                    
                 <label>Ville :  </label>
-                <input name="ville" value="${user.ville}" >
+                <input name="ville" value="${user.city}" >
                    <p></p>
                    
                 <label>Etat :  </label>
-                <input name="etat" value="${user.etat}" >
+                <input name="etat" value="${user.state}" >
                    <p></p>
                    
                 <label>N°de téléphone :   </label>
-                <input name="tel" value="${user.tel}" >
+                <input name="tel" value="${user.phone}" >
                    <p></p>
                    
                 <label>Fax : </label>
@@ -60,12 +59,10 @@
 		<input name="action" value="Modifier" type="SUBMIT">
                
         </form>
-                <p>
-                    ${message}
-                </p>
-                    <form method="GET"> 
-                        <input name="action" value="purcharseorder" type="hidden">
-                        <input value="Editer ses bons de commandes" type="SUBMIT">
-                    </form>
+                
+        <p>${message}</p>
+        
+        <a href="${editPurchaseOrdersURL}">Editer ses bons de commandes</a>
+        <a href="${exitURL}">Se déconnecter</a>
     </body>
 </html>
