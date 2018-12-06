@@ -10,59 +10,91 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" href="css/Client.css">
         <title>Edition des données utilisateurs </title>
     </head>
     <body>
         <h1>Edition des données utilisateurs </h1>
+         <div id="box">
         <form method="POST">
-            <label>Nom : </label>
-                <input name="nom" value="${user.name}">
-                    <p></p>
-                <label>Adresse N°1 :  </label>
-                <input name="adresse1" value="${user.addr1}" >
-                   <p></p>
-                   
-                <label>Adresse N°2 :  </label>
-                <input name="adresse2" value="${user.addr2}" >
-                   <p></p>
-                   
-                <label>Zip : </label>
+            <div class=" nom">
                 
-                <select name="zip">
+            <label for ="nom" ><span> Nom : </span> </label>
+            <input id ="nom" name="nom" value="${user.name}" style="width:200px;">
+            
+            </div>
+            
+            <div class="adresse1">
+                
+                 <label for ="adresse1" ><span> Adresse N°1 : </span> </label>
+                <input id ="adresse1" name="adresse1" value="${user.addr1}" style="width:200px;" >
+                
+            </div>
+                    
+            
+            <div class="adresse2">
+                
+                <label for ="adresse2" ><span> Adresse N°2 : </span> </label>
+                <input id ="adresse2" name="adresse2" value="${user.addr2}" style="width:200px;" >
+                
+            </div>
+            
+            <div class="zip">
+                
+                <label for ="zip" ><span> Zip : </span> </label>
+                
+                <select id ="zip" name="zip" style="margin:auto;">
                     <c:forEach items="${micromarkets}" var="micromarket" >
                         <option value="${micromarker.zipCode}" <c:if test="${zip.zipCode=user.zip}" >selected</c:if>>${zip.zipCode}</option>  
                     </c:forEach>
                 </select>
-                   <p></p>
-                   
-                <label>Ville :  </label>
-                <input name="ville" value="${user.city}" >
-                   <p></p>
-                   
-                <label>Etat :  </label>
-                <input name="etat" value="${user.state}" >
-                   <p></p>
-                   
-                <label>N°de téléphone :   </label>
-                <input name="tel" value="${user.phone}" >
-                   <p></p>
-                   
-                <label>Fax : </label>
-                <input name="fax" value="${user.fax}" >
-                   <p></p>
-                   
-                <label>Email :</label>
-                <input name="email" value="${user.email}" type="email" >
+                
+            </div>
+            
+            <div class="ville">
+                
+                <label for ="ville" ><span> Ville : </span> </label>
+                <input id ="ville" name="ville" value="${user.city}" style="width:200px;" >
+                
+            </div>
+            
+            <div class="etat">
+                
+                <label for ="etat" ><span> Etat : </span> </label>
+                <input id ="etat" name="etat" value="${user.state}" style="width:20px; margin:auto;">
+                
+            </div>
+            
+            <div class=" tel">
+                
+                <label for ="tel" ><span> N°de téléphone : </span> </label>
+                <input id ="tel" name="tel" value="${user.phone}"style="width:200px;" >
+                
+            </div>
+            
+            <div class="fax">
+                
+                <label for ="fax" ><span> Fax : </span> </label>
+                <input id ="fax" name="fax" value="${user.fax}"style="width:200px;" >
+                
+            </div>
+            
+            <div class="email">
+                
+                <label for ="email" ><span> Email : </span> </label>
+                <input id ="email" name="email" value="${user.email}" type="email" style="width:200px;">
+                
+            </div>
                 
                 
-                
-		<input name="action" value="Modifier" type="SUBMIT">
+		<input id="action" name="action" value="Modifier" type="SUBMIT">
                
         </form>
                 
         <p>${message}</p>
-        
+         
         <a href="${editPurchaseOrdersURL}">Editer ses bons de commandes</a>
         <a href="${exitURL}">Se déconnecter</a>
+        </div>
     </body>
 </html>

@@ -48,9 +48,6 @@
 		<input name="action" value="Modifier/ajout" type="SUBMIT">
                
         </form>
-                 <p></p>
-                 <p></p>
-                 <p></p>
                  
                 <table border="1">
                     <tr><th>Nom de l'article</th><th>Quantitées</th><th> Frais de Ports</th><th>Date d'achat</th><th>Date d'envois</th><th>Nom de l'entrepise</th><th>Action</th></tr>

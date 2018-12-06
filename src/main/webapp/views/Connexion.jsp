@@ -27,7 +27,8 @@
                </div>
 		<input id = "action" name="action" value="Connexion" type="SUBMIT">
 	</form>
-    </div>
+    
         <p> ${erreurAut}</p> 
+        </div>
     </body>
 </html>
