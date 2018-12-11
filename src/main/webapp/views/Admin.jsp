@@ -16,36 +16,15 @@
       google.charts.load("current", {packages:["corechart"]});
       google.charts.setOnLoadCallback(drawChart);
       function drawChart(chartData1,chartData2,chartData3) {
-        var data1 = google.visualization.arrayToDataTable([
-          ['Task', 'Hours per Day'],
-          ['hzguzhjhzio',     110],
-          ['Eat',      2],
-          ['Commute',  2],
-          ['Watch TV', 2],
-          ['Sleep',    7]
-        ]);
+        var data1 = google.visualization.arrayToDataTable(chartData1);
           var options1 = {
           title: 'chiffres daffaire/catégorie d article',
           is3D: true,
         };
         
-        var data2 = google.visualization.arrayToDataTable([
-          ['Task', 'Hours per Day'],
-          ['hello',     10],
-          ['Eat',      2],
-          ['Commute',  2],
-          ['Watch TV', 2],
-          ['Sleep',    7]
-        ]);
+        var data2 = google.visualization.arrayToDataTable(chartData2);
         
-         var data3 = google.visualization.arrayToDataTable([
-          ['Task', 'Hours per Day'],
-          ['hello',     1],
-          ['Eat',      2],
-          ['Commute',  2],
-          ['Watch TV', 2],
-          ['Sleep',    7]
-        ]);
+         var data3 = google.visualization.arrayToDataTable(chartData3);
     
         var options2 = {
           title: 'chiffres daffaire/zone géographique',
@@ -82,12 +61,11 @@
                     function (result) {
 			// On reformate le résultat comme un tableau
 			var article = [];
-                        var geo = [];
-                        var client = [];
+                       
 			// On met le descriptif des données
-			article.push(["Client", "Ventes"]);
-			for(var client in result.records) {
-                            article.push([client, result.records[client]]);
+			article.push([ "article","Chiffre d'affaire"]);
+			for(var Article in result.records) {
+                            article.push([Article, result.records[article]]);
 						}
 			// On dessine le graphique
                         
@@ -95,7 +73,60 @@
                         
                         
                         
-			drawChart(article,geo,client);
+			drawChart(article);
+			},
+                    error: showError
+                });
+            }
+            function showCodes2() {
+                // On fait un appel AJAX pour chercher les codes
+                $.ajax({
+                    url: "allCodes",//a modifier ,om de servlet
+                    dataType: "json",
+                    success: // La fonction qui traite les résultats
+                    function (result) {
+			// On reformate le résultat comme un tableau
+			
+                        var geo = [];
+                     
+			// On met le descriptif des données
+			article.push([ "geo","Chiffre d'affaire"]);
+			for(var Geo in result.records) {
+                            article.push([Geo, result.records[geo]]);
+						}
+			// On dessine le graphique
+                        
+                        
+                        
+                        
+                        
+			drawChart(geo);
+			},
+                    error: showError
+                });
+            }
+            function showCodes3() {
+                // On fait un appel AJAX pour chercher les codes
+                $.ajax({
+                    url: "allCodes",//a modifier ,om de servlet
+                    dataType: "json",
+                    success: // La fonction qui traite les résultats
+                    function (result) {
+			// On reformate le résultat comme un tableau
+			
+                        var client = [];
+			// On met le descriptif des données
+			article.push([ "client","Chiffre d'affaire"]);
+			for(var Client in result.records) {
+                            article.push([Client, result.records[client]]);
+						}
+			// On dessine le graphique
+                        
+                        
+                        
+                        
+                        
+			drawChart(client);
 			},
                     error: showError
                 });
