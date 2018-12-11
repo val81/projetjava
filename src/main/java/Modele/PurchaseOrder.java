@@ -34,9 +34,15 @@ public class PurchaseOrder {
         this.freightCompany = freightCompany;
     }
     
-    public PurchaseOrder(int customerId)
+    public PurchaseOrder(int customerId, int productId)
     {
         this.customerId = customerId;
+        this.productId = productId;
+    }
+    
+    public void setOrderNum(int orderNum)
+    {
+        this.orderNum = orderNum;
     }
     
     int getOrderNum()

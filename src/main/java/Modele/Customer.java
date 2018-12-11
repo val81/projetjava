@@ -48,6 +48,11 @@ public class Customer {
         this.id = id;
     }
     
+    public void setEmail(String email)
+    {
+        this.email = email;
+    }
+    
     public int getId()
     {
         return this.id;

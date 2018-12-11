@@ -32,43 +32,53 @@ public class Product {
         this.description = description;
     }
 
+    public Product(int manufacturerId, String productCode)
+    {
+        this.manufacturerId = manufacturerId;
+        this.productCode = productCode;
+    }
+
+    public void setPurchaseCost(double purchaseCost)
+    {
+        this.purchaseCost = purchaseCost;
+    }
     
-    int getId()
+    public int getId()
     {
         return this.id;
     }
     
-    int getManufacturerId()
+    public int getManufacturerId()
     {
         return this.manufacturerId;
     }
     
-    String getProductCode()
+    public String getProductCode()
     {
         return this.productCode;
     }
     
-    double getPurchaseCost()
+    public double getPurchaseCost()
     {
         return this.purchaseCost;
     }
     
-    int getQuantityOnHand()
+    public int getQuantityOnHand()
     {
         return this.quantityOnHand;
     }
     
-    double getMarkup()
+    public double getMarkup()
     {
         return this.markup;
     }
     
-    boolean isAvailable()
+    public boolean isAvailable()
     {
         return this.available;
     }
     
-    String getDescription()
+    public String getDescription()
     {
         return this.description;
     }

@@ -31,6 +31,7 @@ public class DAO implements IDAO
         this.myDataSource = dataSource;
     }
         
+    @Override
     public List<PurchaseOrder> getPurchaseOrders(Customer customer)
     {
         List<PurchaseOrder> result = new LinkedList<>();
@@ -58,28 +59,49 @@ public class DAO implements IDAO
         return result;
     }
 
+    public List<PurchaseOrder> getAllPurchaseOrders()
+    {
+        List<PurchaseOrder> result = new LinkedList<>();
+
+        String sql = "SELECT * FROM PURCHASE_ORDER";
+        try (Connection connection = myDataSource.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql))
+        {
+            try (ResultSet rs = stmt.executeQuery())
+            {
+                while (rs.next())
+                {
+                    PurchaseOrder purchase = new PurchaseOrder(rs.getInt("ORDER_NUM"), rs.getInt("CUSTOMER_ID"), rs.getInt("PRODUCT_ID"),
+                                                    rs.getInt("QUANTITY"), rs.getDouble("SHIPPING_COST"), rs.getDate("SALES_DATE"),
+                                                    rs.getDate("SHIPPING_DATE"), rs.getString("FREIGHT_COMPANY"));
+                    result.add(purchase);
+                }
+            }
+        } catch (SQLException ex)
+        {
+            Logger.getLogger("DAO").log(Level.SEVERE, null, ex);
+            return null;
+        }
+        return result;
+    }
+    
+    @Override
     public boolean addPurchaseOrder(PurchaseOrder order)
     {
-        String insertPurchaseOrder = "INSERT INTO PURCHASE_ORDER VALUES (?, ?, ?, ?, ?, ?, ?, ?,)";
+        String insertPurchaseOrder = "INSERT INTO PURCHASE_ORDER VALUES((SELECT MAX(ORDER_NUM) + 1 FROM PURCHASE_ORDER), ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection myConnection = myDataSource.getConnection();
             PreparedStatement purchaseStatement = myConnection.prepareStatement(insertPurchaseOrder, Statement.RETURN_GENERATED_KEYS))
         {
             myConnection.setAutoCommit(false);
 
-            ResultSet generatedKeys = purchaseStatement.getGeneratedKeys();
-            generatedKeys.next();
-            int purchaseID = generatedKeys.getInt("ID");
-            System.out.println("Nouvelle clé générée pour PURCHASE_ORDER : " + purchaseID);
-
-            purchaseStatement.setInt(1, purchaseID);
-            purchaseStatement.setInt(2, order.getCustomerId());
-            purchaseStatement.setInt(3, order.getProductId());
-            purchaseStatement.setInt(4, order.getQuantity());
-            purchaseStatement.setDouble(5, order.getShippingCost());
-            purchaseStatement.setDate(6, order.getSalesDate());
-            purchaseStatement.setDate(7, order.getShippingDate());
-            purchaseStatement.setString(8, order.getFreightCompany());
+            purchaseStatement.setInt(1, order.getCustomerId());
+            purchaseStatement.setInt(2, order.getProductId());
+            purchaseStatement.setInt(3, order.getQuantity());
+            purchaseStatement.setDouble(4, order.getShippingCost());
+            purchaseStatement.setDate(5, order.getSalesDate());
+            purchaseStatement.setDate(6, order.getShippingDate());
+            purchaseStatement.setString(7, order.getFreightCompany());
             try
             {
                 purchaseStatement.executeUpdate();
@@ -103,43 +125,44 @@ public class DAO implements IDAO
     @Override //login = email, psw = id
     public Customer login(String login, String password)
     {
-            Customer result = null;
-            String sql = "SELECT * FROM CUSTOMER WHERE CUSTOMER_ID = ?";
-            try (Connection connection = myDataSource.getConnection();
-                    PreparedStatement stmt = connection.prepareStatement(sql)) {
+        Customer result = null;
+        String sql = "SELECT * FROM CUSTOMER WHERE CUSTOMER_ID = ?";
+        try (Connection connection = myDataSource.getConnection();
+                PreparedStatement stmt = connection.prepareStatement(sql))
+        {
 
-                    stmt.setInt(1, Integer.parseInt(password));
-                    try (ResultSet rs = stmt.executeQuery())
+                stmt.setInt(1, Integer.parseInt(password));
+                try (ResultSet rs = stmt.executeQuery())
+                {
+                    if (rs.next())
                     {
-                        if (rs.next())
-                        {
-                            result = new Customer(rs.getInt("CUSTOMER_ID"),
-                                                    rs.getString("DISCOUNT_CODE"),
-                                                    rs.getString("ZIP"),
-                                                    rs.getString("NAME"),
-                                                    rs.getString("ADDRESSLINE1"),
-                                                    rs.getString("ADDRESSLINE2"),
-                                                    rs.getString("CITY"),
-                                                    rs.getString("STATE"),
-                                                    rs.getString("PHONE"),
-                                                    rs.getString("FAX"),
-                                                    rs.getString("EMAIL"),
-                                                    rs.getInt("CREDIT_LIMIT"));
-                        }
+                        result = new Customer(rs.getInt("CUSTOMER_ID"),
+                                                rs.getString("DISCOUNT_CODE"),
+                                                rs.getString("ZIP"),
+                                                rs.getString("NAME"),
+                                                rs.getString("ADDRESSLINE1"),
+                                                rs.getString("ADDRESSLINE2"),
+                                                rs.getString("CITY"),
+                                                rs.getString("STATE"),
+                                                rs.getString("PHONE"),
+                                                rs.getString("FAX"),
+                                                rs.getString("EMAIL"),
+                                                rs.getInt("CREDIT_LIMIT"));
                     }
-		}  catch (SQLException ex) {
-			Logger.getLogger("DAO").log(Level.SEVERE, null, ex);
-                        return null;
-		}
-            if (result != null && !login.equals(result.getEmail()))
-                return null;
-            return result;
+                }
+        }  catch (SQLException ex) {
+            Logger.getLogger("DAO").log(Level.SEVERE, null, ex);
+            return null;
+	}
+        if (result != null && !login.equals(result.getEmail()))
+            return null;
+        return result;
     }
 
     @Override
     public boolean updateCustomer(Customer newCustomerData)
     {
-        String sql = "UPDATE CUSTOMER SET DISCOUNT_CODE = ?, ZIP = ?, NAME = ?, ADRESSLINE1 = ?, ADRESSLINE2 = ?, CITY = ?, STATE = ?, PHONE = ?, FAX = ?, EMAIL = ?, CREDIT_LIMIT = ? WHERE CUSTOMER_ID = ?";
+        String sql = "UPDATE CUSTOMER SET DISCOUNT_CODE = ?, ZIP = ?, NAME = ?, ADDRESSLINE1 = ?, ADDRESSLINE2 = ?, CITY = ?, STATE = ?, PHONE = ?, FAX = ?, EMAIL = ?, CREDIT_LIMIT = ? WHERE CUSTOMER_ID = ?";
         try (	Connection myConnection = myDataSource.getConnection();
 		PreparedStatement statement = myConnection.prepareStatement(sql))
         {
@@ -182,8 +205,14 @@ public class DAO implements IDAO
             PreparedStatement stmt = connection.prepareStatement(sql))
         {
             stmt.setInt(1, order.getOrderNum());
-            if ((stmt.executeUpdate()) != 1)
+
+            int tmp;
+            if ((tmp = (stmt.executeUpdate())) != 1)
+            {
+                System.out.println(order.getOrderNum());
+                System.out.println("stmt.executeUpdate: " + tmp);
                 return false;
+            }
 	} catch (SQLException ex) {
             Logger.getLogger("DAO").log(Level.SEVERE, null, ex);
             return false;
@@ -194,7 +223,7 @@ public class DAO implements IDAO
     @Override
     public boolean updatePurchaseOrder(PurchaseOrder order)
     {
-        String sql = "UPDATE PURCHASE_ORDER SET CUSTOMER_ID = ?, PRODUCT_ID = ?, QUANTITY = ?, SHIPPING_COST = ?, SALES_DATE = ?, SHIPPING_DATE = ?, FREIGHT_COMPANY = ? WHERE ODER_NUM = ?";
+        String sql = "UPDATE PURCHASE_ORDER SET CUSTOMER_ID = ?, PRODUCT_ID = ?, QUANTITY = ?, SHIPPING_COST = ?, SALES_DATE = ?, SHIPPING_DATE = ?, FREIGHT_COMPANY = ? WHERE ORDER_NUM = ?";
         try (	Connection myConnection = myDataSource.getConnection();
 		PreparedStatement statement = myConnection.prepareStatement(sql))
         {
@@ -208,7 +237,7 @@ public class DAO implements IDAO
                 statement.setDate(5, order.getSalesDate());
                 statement.setDate(6, order.getShippingDate());
                 statement.setString(7, order.getFreightCompany());
-                statement.setInt(1, order.getOrderNum());
+                statement.setInt(8, order.getOrderNum());
                 if (statement.executeUpdate() != 1)
                     return false;
                 myConnection.commit();
@@ -255,26 +284,20 @@ public class DAO implements IDAO
     @Override
     public boolean addProduct(Product product)
     {
-        String insertProduct = "INSERT INTO PRODUCT VALUES (?, ?, ?, ?, ?, ?, ?, ?,)";
+        String insertProduct = "INSERT INTO PRODUCT VALUES((SELECT MAX(PRODUCT_ID) + 1 FROM PRODUCT), ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection myConnection = myDataSource.getConnection();
             PreparedStatement productStatement = myConnection.prepareStatement(insertProduct, Statement.RETURN_GENERATED_KEYS))
         {
             myConnection.setAutoCommit(false);
 
-            ResultSet generatedKeys = productStatement.getGeneratedKeys();
-            generatedKeys.next();
-            int productID = generatedKeys.getInt("ID");
-            System.out.println("Nouvelle clé générée pour PURCHASE_ORDER : " + productID);
-
-            productStatement.setInt(1, productID);
-            productStatement.setInt(2, product.getManufacturerId());
-            productStatement.setString(3, product.getProductCode());
-            productStatement.setDouble(4, product.getPurchaseCost());
-            productStatement.setInt(5, product.getQuantityOnHand());
-            productStatement.setDouble(6, product.getMarkup());
-            productStatement.setString(7, product.isAvailable() ? "TRUE" : "FALSE");
-            productStatement.setString(8, product.getDescription());
+            productStatement.setInt(1, product.getManufacturerId());
+            productStatement.setString(2, product.getProductCode());
+            productStatement.setDouble(3, product.getPurchaseCost());
+            productStatement.setInt(4, product.getQuantityOnHand());
+            productStatement.setDouble(5, product.getMarkup());
+            productStatement.setString(6, product.isAvailable() ? "TRUE" : "FALSE");
+            productStatement.setString(7, product.getDescription());
             try
             {
                 productStatement.executeUpdate();
@@ -347,6 +370,11 @@ public class DAO implements IDAO
     }
 
     @Override
+    public List<MicroMarket> getAllMicroMarkets() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
     public List<ProductCodeRevenue> getProductCodesRevenues(Date startDate, Date endDate) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -359,14 +387,7 @@ public class DAO implements IDAO
     @Override
     public List<CustomerRevenue> getCustomersRevenues(Date startDate, Date endDate) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public List<MicroMarket> getAllMicroMarkets() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-        
-        
+    }        
 }
 
 /*
