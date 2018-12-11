@@ -389,22 +389,3 @@ public class DAO implements IDAO
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }        
 }
-
-/*
-        Customer login(String login, String password);
-        boolean updateCustomer(Customer newCustomerData);
-    
-        List<PurchaseOrder> getPurchaseOrders(Customer customer);
-        boolean addPurchaseOrder(PurchaseOrder order);  --> key
-        boolean deletePurchaseOrders(PurchaseOrder order);
-        boolean updatePurchaseOrder(PurchaseOrder order);
-    
-        List<Product> getAllProducts();
-        boolean addProduct(Product product); --> key
-        boolean deleteProduct(Product product);
-        boolean updateProduct(Product product);
-    
-    List<ProductCodeRevenue> getProductCodesRevenues(Date startDate, Date endDate);
-    List<MicroMarketRevenue> getMicroMarketsRevenues(Date startDate, Date endDate);
-    List<CustomerRevenue> getCustomersRevenues(Date startDate, Date endDate);
-*/
