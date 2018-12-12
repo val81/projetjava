@@ -370,8 +370,28 @@ public class DAO implements IDAO
     }
 
     @Override
-    public List<MicroMarket> getAllMicroMarkets() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public List<MicroMarket> getAllMicroMarkets()
+    {
+        List<MicroMarket> result = new LinkedList<>();
+
+        String sql = "SELECT * FROM MICRO_MARKET";
+        try (Connection connection = myDataSource.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql))
+        {
+            try (ResultSet rs = stmt.executeQuery())
+            {
+                while (rs.next())
+                {
+                    result.add(new MicroMarket(rs.getString("PRODUCT_ID"), rs.getDouble("MANUFACTURER_ID"),
+                                                rs.getDouble("PRODUCT_CODE"), rs.getDouble("PURCHASE_COST")));
+                }
+            }
+        } catch (SQLException ex)
+        {
+            Logger.getLogger("DAO").log(Level.SEVERE, null, ex);
+            return null;
+        }
+        return result;
     }
 
     @Override
